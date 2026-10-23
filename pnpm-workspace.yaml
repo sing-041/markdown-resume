@@ -1,0 +1,5 @@
+# 让 frontend 成为独立工作区，避免 pnpm 向上找到仓库根目录的 monorepo。
+packages:
+  - "."
+allowBuilds:
+  esbuild: true

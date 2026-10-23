@@ -1,0 +1,490 @@
+/*
+ * 简历正文样式（Backbone CSS）。
+ * 选择器统一为 #resume-paper，和 SmartPages 组件里的 id 对应。
+ *
+ * 排版 token（1× = 正文字号；1 行 = 正文行距 × 正文字号）：
+ *   字号：fs-name / fs-h2 / fs-entry / fs-body，
+ *         前三个都是正文基准 × 托盘里的倍数。
+ *   间距：正文块级间距只有两档——sp-block（段落间距）与 sp-section（小节间距），
+ *         托盘里以「行」为单位调节；其余 sp-* 都是它们的别名。
+ *   例外：头部三行内部固定为 0.3 / 0.4 行；sp-title-rule 是小节标题自身的
+ *         下划线内边距，属于标题装饰，不参与块间距调节。
+ *
+ * 行与行之间（自然折行、回车换行）只由 line-height 决定，额外 margin 一律为 0；
+ * 条目靠圆点与悬挂缩进区分。列表项之间、条目之间、条目头→首条列表之间
+ * 统一使用同一个 sp-block 值，不再有第二档“行内间距”。
+ */
+
+#resume-paper {
+  /* 正文基准字号由 SmartPages 以内联变量传入 */
+  --resume-base: 12px;
+  --line: calc(var(--resume-base) * var(--resume-line-height, 1.4));
+
+  /* 3 个元素字号倍数，默认值与 core/settings.ts 保持一致 */
+  --fs-name: calc(var(--resume-base) * var(--scale-name, 2));
+  --fs-h2: calc(var(--resume-base) * var(--scale-h2, 1.25));
+  --fs-entry: calc(var(--resume-base) * var(--scale-entry, 1.05));
+  --fs-body: var(--resume-base);
+
+  /* 只有两档块级间距 */
+  --sp-block: calc(var(--line) * var(--sp-block-lines, 0.3));
+  --sp-section: calc(var(--line) * var(--sp-section-lines, 0.5));
+
+  /*
+   * 段落间距：列表项 / 条目 / 条目头→首条列表 / 标签前后，全部同值。
+   * 所有块只保留「上边距」，下边距一律为 0——这样相邻 margin 不会折叠，
+   * 小节间距调成 0 时才能真正贴住上一条内容。
+   */
+  --sp-item: var(--sp-block);
+  --sp-entry: var(--sp-block);
+  --sp-entry-bullet: var(--sp-block);
+  --sp-label-bottom: var(--sp-block);
+  --sp-rule-entry: var(--sp-block);
+
+  /* 头部三行内部固定比例：姓名→求职意向 0.3 行，求职意向→联系方式 0.4 行 */
+  --sp-head-1: calc(var(--line) * 0.3);
+  --sp-head-2: calc(var(--line) * 0.4);
+
+  /*
+   * 小节间距：上一条目末行 -> 下一小节标题。
+   * 第一个小节同样从联系方式行底缘起算，不参考照片底缘。
+   */
+  --sp-section-top: var(--sp-section);
+
+  /* 标题装饰线内边距（不是块间距） */
+  --sp-title-rule: calc(var(--line) * 0.25);
+
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #1f2937;
+  font-size: var(--fs-body);
+  line-height: var(--resume-line-height, 1.4);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  overflow-wrap: break-word;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+#resume-paper p,
+#resume-paper li,
+#resume-paper dl,
+#resume-paper dt,
+#resume-paper dd {
+  margin: 0;
+}
+
+/* 加粗统一为 700，避免 <strong> 在已加粗的条目头里叠成 900 */
+#resume-paper strong,
+#resume-paper b {
+  font-weight: 700;
+}
+
+/* 标题 */
+
+#resume-paper h1,
+#resume-paper h2,
+#resume-paper h3 {
+  font-weight: 700;
+  color: #111827;
+}
+
+#resume-paper h1 {
+  margin: 0;
+  font-size: var(--fs-name);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+/* 小节标题：左侧竖条 + 通栏细线 */
+#resume-paper h2 {
+  /*
+   * 独立格式化上下文：标题框（连同它的通栏细线）遇到右上角照片时
+   * 会在照片左侧收窄，细线不会伸到照片下面，也不会碰到照片。
+   */
+  display: flow-root;
+  margin-top: var(--sp-section-top);
+  margin-bottom: 0;
+  padding-bottom: var(--sp-title-rule);
+  font-size: var(--fs-h2);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #4b5563;
+}
+
+#resume-paper h2::before {
+  content: "";
+  display: inline-block;
+  width: 0.18em;
+  height: 0.92em;
+  margin-right: 0.45em;
+  background: currentColor;
+  vertical-align: -0.08em;
+}
+
+/*
+ * 小节间距只由 h2 的 margin-top 决定：所有前序块的 margin-bottom 都是 0，
+ * 因此把「小节间距」调到 0 时，小节标题会真正贴住上一条内容。
+ */
+
+/* h3 不是模板必需项，复用 fs-entry，避免多出一个字号 token */
+#resume-paper h3 {
+  margin-top: var(--sp-entry);
+  margin-bottom: 0;
+  font-size: var(--fs-entry);
+  line-height: 1.3;
+}
+
+/* 列表 */
+
+/* 块级间距只放在上边距，下边距全部为 0 */
+#resume-paper ul,
+#resume-paper ol {
+  margin: 0;
+}
+
+#resume-paper ol {
+  padding-left: 1.25em;
+  list-style-type: decimal;
+}
+
+/*
+ * 自定义圆点：圆点贴内容区左缘，正文缩进 1.5 个字符。
+ * padding-left 作用于所有折行，形成真正的悬挂缩进
+ * （浏览器默认 marker 的缩进太浅，折行会看起来落在圆点正下方）。
+ */
+#resume-paper ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+#resume-paper ul > li {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+#resume-paper ul > li::before {
+  content: "";
+  position: absolute;
+  top: 0.6em;
+  left: 0;
+  width: 0.3em;
+  height: 0.3em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+#resume-paper li + li {
+  margin-top: var(--sp-item);
+}
+
+/* 「项目职责：」这类独立标签：上下都与正文保持同一个段落间距 */
+#resume-paper p + ul,
+#resume-paper p + ol {
+  margin-top: var(--sp-label-bottom);
+}
+
+/* 技能等并列段落之间按列表项间距处理 */
+#resume-paper > p + p {
+  margin-top: var(--sp-item);
+}
+
+/* 条目头 -> 其下的列表 */
+#resume-paper > dl + ul,
+#resume-paper > dl + ol {
+  margin-top: var(--sp-entry-bullet);
+}
+
+/* 列表 / 条目头 -> 普通段落（列表本身不再留下边距） */
+#resume-paper > ul + p,
+#resume-paper > ol + p,
+#resume-paper > dl + p {
+  margin-top: var(--sp-item);
+}
+
+/* 罕见的相邻列表 */
+#resume-paper > :is(ul, ol) + :is(ul, ol) {
+  margin-top: var(--sp-item);
+}
+
+/*
+ * 小节标题到首个内容的间距：四个小节必须完全一致。
+ * 第一条记录可能是定义列表、段落或列表。
+ */
+#resume-paper h2 + dl,
+#resume-paper h2 + p,
+#resume-paper h2 + ul,
+#resume-paper h2 + ol {
+  margin-top: var(--sp-rule-entry);
+}
+
+/*
+ * 条目首行三段式（dt + 两个 dd，由 markdown-it-deflist 生成）：
+ *   [时间] ............ [名称] ............ [角色]
+ * Markdown 约定：
+ *   第一行 dt        -> 角色/职位/学位，右对齐
+ *   第一条 : dd      -> 公司/学校/项目名，内容区正中
+ *   最后一条 : dd    -> 时间，左对齐
+ *
+ * 左右两列都用 minmax(auto, 1fr)，即两侧等宽，中列 auto。
+ * 这样中段始终位于内容区正中，而不是「剩余空间的正中」。
+ */
+
+#resume-paper dl {
+  display: grid;
+  grid-template-columns: minmax(auto, 1fr) minmax(0, auto) minmax(auto, 1fr);
+  align-items: baseline;
+  column-gap: 0.55em;
+  margin: var(--sp-entry) 0 0;
+  font-size: var(--fs-entry);
+  line-height: var(--resume-line-height, 1.4);
+}
+
+/* 三段统一加粗、同一行、不换行 */
+#resume-paper dl dt,
+#resume-paper dl dd {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#resume-paper dl dd:last-child {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+}
+
+#resume-paper dl dd:first-of-type:not(:last-child) {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+#resume-paper dl dt {
+  grid-column: 3;
+  grid-row: 1;
+  text-align: right;
+}
+
+/*
+ * 溢出降级（由 core/entryHeader.ts 测量后加类）：
+ * 名称 + 角色超过内容区 70% 时，名称改为紧跟时间约 2 字宽处左对齐；
+ * 仍放不下则省略号截断，绝不折行。
+ */
+
+#resume-paper dl.is-degraded {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+#resume-paper dl.is-degraded dd:first-of-type:not(:last-child) {
+  margin-left: 1.3em;
+  text-align: left;
+}
+
+#resume-paper dl.is-truncated dd:first-of-type:not(:last-child) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 链接：与正文同色、无下划线 */
+
+#resume-paper a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 图标与图片 */
+
+#resume-paper iconify-icon,
+#resume-paper svg.iconify {
+  vertical-align: -0.2em;
+}
+
+#resume-paper img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 固定顶部信息区 + 右上角照片位 */
+
+/*
+ * 头部块高度只由三行文字决定，照片不参与撑高：
+ * 照片以 float: right 挂在头部右上角，超出头部的部分继续占住右侧，
+ * 后面小节的行盒会自动避开它。
+ * 因此第一个小节标题 = 联系方式行底缘 + 小节间距，
+ * 与「工作经历 -> 教育背景」等其他小节完全同一条规则。
+ */
+.resume-top {
+  display: block;
+}
+
+.resume-top-info {
+  display: block;
+  /* 照片左缘到联系方式行右端至少 8mm */
+  padding-right: calc(25mm + 8mm);
+}
+
+#resume-paper .resume-top-info > h1 {
+  margin: 0;
+  text-align: left;
+}
+
+/*
+ * 求职意向行与联系方式行都在正文字号 / 字色之内，
+ * 头部只额外规定两行之间的固定间距。
+ *
+ * pre-wrap：这两行里手输的空格按原样显示，连续多个空格不会被
+ * HTML 折叠成一个，可以用空格微调电话 / 邮箱等信息的间距；
+ * 换行仍然可以在空格处正常发生。
+ */
+#resume-paper .resume-top-info > p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* 姓名 -> 求职意向 = 0.3 行 */
+#resume-paper .resume-top-info > h1 + p {
+  margin-top: var(--sp-head-1);
+}
+
+/* 求职意向 -> 联系方式 = 0.4 行 */
+#resume-paper .resume-top-info > p + p {
+  margin-top: var(--sp-head-2);
+}
+
+/*
+ * 联系方式行：用 `·` 等分隔符时，renderMarkdown 会把分隔符换成
+ * 两个空格；没有分隔符时整段原样保留。空格是否显示由上面的
+ * white-space: pre-wrap 决定。
+ */
+#resume-paper .resume-contact {
+  /* 单个联系方式过长时在段内换行，而不是溢出到照片下方 */
+  overflow-wrap: anywhere;
+}
+
+/*
+ * 照片位：固定物理尺寸，浮动在头部右上角。
+ * 浮动会一直影响到照片底缘所在的那一行，后面的小节 / 条目头
+ * 在照片左侧自动收窄，不会被照片压住。
+ */
+.resume-photo-frame {
+  position: relative;
+  float: right;
+  /* 标准一寸照 25 × 35mm（5:7），固定物理尺寸，不随字号缩放 */
+  width: 25mm;
+  height: 35mm;
+  /* 照片左缘到正文、以及到小节标题细线，都留 8mm */
+  margin-left: 8mm;
+  /*
+   * 照片的位置：与姓名对齐，向上偏移0.3
+   * 同时收掉底部 4px 浮动范围（默认排版下首条记录的行盒顶端
+   * 只比照片底缘低 2~3px），避免第一条条目头被无谓地缩窄。
+   * 照片本身的尺寸和可见范围不变。
+   */
+  margin-top: calc(var(--line) * -0.3);
+  margin-bottom: -4px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+/* 用 ID + 类提高优先级，压过通用 img { height: auto } */
+#resume-paper img.resume-photo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 占位框始终保留尺寸；有照片时被图片盖住，加载失败时重新露出 */
+.resume-photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #9ca3af;
+  font-size: var(--fs-body);
+  letter-spacing: 0.15em;
+  border: 1px dashed #d1d5db;
+}
+
+.resume-photo-frame.is-empty .resume-photo-placeholder,
+.resume-photo-frame.is-failed .resume-photo-placeholder {
+  display: flex;
+}
+
+#resume-paper .resume-photo-frame.is-failed .resume-photo {
+  display: none;
+}
+
+/* 分页后新页顶部不再重复大节间距 */
+
+#resume-paper .vue-smart-page-break + h2 {
+  margin-top: 0;
+}
+
+/*
+ * 预览页边界：分页符的顶部就是下一页的起点。
+ * 虚线 +「第 N 页」标签只用于屏幕预览，打印时由 print.css 隐藏。
+ */
+#resume-paper .vue-smart-page-break {
+  position: relative;
+}
+
+#resume-paper .vue-smart-page-break::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed #cbd5e1;
+  pointer-events: none;
+}
+
+#resume-paper .vue-smart-page-break::after {
+  content: "第 " attr(data-page) " 页";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  padding: 0 10px;
+  font-size: 11px;
+  line-height: 18px;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+/*
+ * 动态样式层：由 SmartPages 通过内联 CSS 变量传入。
+ * 注意：这里必须放在 Backbone CSS 之后，才能覆盖上面的默认值。
+ */
+
+#resume-paper h1,
+#resume-paper h2,
+#resume-paper h3 {
+  color: var(--resume-theme-color, #111827);
+}
+
+#resume-paper p,
+#resume-paper li,
+#resume-paper dt,
+#resume-paper dd {
+  line-height: var(--resume-line-height, 1.4);
+}
+
+@media print {
+  #resume-paper {
+    background-color: #fff !important;
+    color: #1f2937 !important;
+  }
+}

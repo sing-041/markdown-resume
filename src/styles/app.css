@@ -1,0 +1,263 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #111827;
+  background: #e5e7eb;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+/* ---------- 左侧编辑器 ---------- */
+
+.editor-pane {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: var(--editor-width, 46%);
+  min-width: 360px;
+  background: #fff;
+}
+
+/* ---------- 可拖动分隔条 ---------- */
+
+.splitter {
+  position: relative;
+  flex: none;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  background: #e5e7eb;
+  border-left: 1px solid #d1d5db;
+}
+
+/* 居中的握柄，提示这里可以拖 */
+.splitter::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 32px;
+  content: "";
+  background: #9ca3af;
+  border-radius: 1px;
+  opacity: 0.5;
+  transform: translate(-50%, -50%);
+}
+
+.splitter:hover,
+.splitter.is-dragging,
+.splitter:focus-visible {
+  background: #d1d5db;
+}
+
+.splitter:hover::after,
+.splitter.is-dragging::after,
+.splitter:focus-visible::after {
+  opacity: 1;
+}
+
+.splitter:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+}
+
+/* 拖动时锁住光标和文本选择，避免划过预览区时选中文字 */
+body.is-resizing,
+body.is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.toolbar-title {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toolbar-actions button {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.toolbar-actions button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.toolbar-actions button.primary {
+  color: #fff;
+  background: #111827;
+  border-color: #111827;
+}
+
+.toolbar-actions button.primary:hover {
+  background: #1f2937;
+}
+
+.editor {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #111827;
+  background: #fff;
+  border: 0;
+  outline: none;
+  resize: none;
+  tab-size: 2;
+}
+
+.hint {
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #6b7280;
+  border-top: 1px solid #e5e7eb;
+}
+
+.hint code {
+  padding: 1px 4px;
+  font-family: inherit;
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.status {
+  display: block;
+  margin-top: 4px;
+  color: #2563eb;
+}
+
+/* ---------- 右侧 A4 预览 ---------- */
+
+.preview-pane {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  background: #e5e7eb;
+}
+
+/* 预览顶栏：始终可见的页数 / 末页剩余行数 */
+.preview-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  /* 靠左，避免和右上角的排版托盘重叠 */
+  justify-content: flex-start;
+  min-height: 33px;
+  padding: 6px 16px;
+  background: #f3f4f6;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.preview-pages {
+  padding: 3px 10px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #4b5563;
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+}
+
+.preview-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+  overflow: auto;
+}
+
+#resume-paper {
+  flex: none;
+  box-shadow: 0 2px 16px rgb(0 0 0 / 15%);
+}
+
+@media (max-width: 900px) {
+  .app {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .editor-pane {
+    width: 100%;
+    min-width: 0;
+    height: 55vh;
+    border-bottom: 1px solid #d1d5db;
+  }
+
+  /* 上下堆叠时不需要左右分栏 */
+  .splitter {
+    display: none;
+  }
+
+  .preview-pane {
+    flex: none;
+  }
+
+  .preview-scroll {
+    flex: none;
+    padding: 12px;
+  }
+}

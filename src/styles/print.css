@@ -1,0 +1,81 @@
+/*
+ * 打印 / 另存为 PDF。
+ * 关键点：
+ * 1. @page margin: 0，纸张的边距由 #resume-paper 的 padding 控制。
+ * 2. breakPage 会设置 padding-bottom 撑满当前页；打印时必须归零，
+ *    否则内容会超出 A4（299mm vs 297mm），多出一张空白页。
+ * 3. 分页符通过 page-break-before: always 生效。
+ */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body,
+  #app {
+    height: auto !important;
+    background: #fff !important;
+  }
+
+  .app {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .editor-pane,
+  .splitter {
+    display: none !important;
+  }
+
+  .preview-pane {
+    display: block !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  /* 页数提示与排版托盘只在屏幕上显示 */
+  .preview-bar,
+  .settings-tray,
+  .settings-fab {
+    display: none !important;
+  }
+
+  .preview-scroll {
+    display: block !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  #resume-paper {
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding-bottom: 0 !important;
+    box-shadow: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .vue-smart-page-break {
+    margin-top: 0 !important;
+    border: none !important;
+    page-break-before: always !important;
+  }
+
+  /* 预览用的页边界虚线与页码不要打进 PDF */
+  .vue-smart-page-break::before,
+  .vue-smart-page-break::after {
+    display: none !important;
+  }
+
+  /* 未上传照片时保留 25 × 35mm 占位框，打印为浅灰细框 */
+  .resume-photo-placeholder {
+    color: #9ca3af !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}
