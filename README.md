@@ -32,7 +32,7 @@ A browser-only Markdown resume editor with live A4 preview and print-to-PDF.
 - 下载 Markdown、导出/导入 JSON 备份、浏览器打印为 PDF
 - 内容自动保存到 `localStorage`；存储不可用时降级为「不持久化」模式，应用仍可正常使用
 
-![运行效果](./dist/assets/运行效果.png)
+![运行效果](./运行效果.png)
 
 ## 快速开始
 
